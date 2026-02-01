@@ -23,15 +23,21 @@ Route::get('/shop', function () {
 
 Route::get('/product/{id?}', function ($id = null) {
     if ($id) {
-        $product = \App\Models\Product::with(['category', 'brand'])->findOrFail($id);
+        $product = \App\Models\Product::with(['category', 'brand', 'variants', 'reviews'])->findOrFail($id);
     } else {
-        $product = \App\Models\Product::with(['category', 'brand'])->first();
+        $product = \App\Models\Product::with(['category', 'brand', 'variants', 'reviews'])->firstOrFail();
     }
+    
+    // Fetch related products (same category, excluding current)
+    $relatedProducts = \App\Models\Product::where('category_id', $product->category_id)
+        ->where('id', '!=', $product->id)
+        ->take(4)
+        ->get();
     
     // For related products or footer
     $categories = \App\Models\Category::take(5)->get();
     
-    return view('product', compact('product', 'categories'));
+    return view('product', compact('product', 'categories', 'relatedProducts'));
 })->name('product');
 
 Route::get('/cart', function () {
