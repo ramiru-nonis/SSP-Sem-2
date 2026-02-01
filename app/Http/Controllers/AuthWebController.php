@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\Category;
+
 class AuthWebController extends Controller
 {
     public function showLogin()
@@ -24,12 +26,14 @@ class AuthWebController extends Controller
 
     public function orders()
     {
-        return view('orders');
+        $categories = Category::active()->take(6)->get();
+        return view('orders', compact('categories'));
     }
 
     public function wishlist()
     {
-        return view('wishlist');
+        $categories = Category::active()->take(6)->get();
+        return view('wishlist', compact('categories'));
     }
 
     public function logout(Request $request)

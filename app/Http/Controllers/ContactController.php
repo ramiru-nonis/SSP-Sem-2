@@ -5,11 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+use App\Models\Category;
+
 class ContactController extends Controller
 {
     public function show()
     {
-        return view('contact');
+        $categories = Category::active()->take(6)->get();
+        return view('contact', compact('categories'));
     }
 
     public function submit(Request $request)
