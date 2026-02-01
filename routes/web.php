@@ -64,3 +64,16 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+// Temporary Debug Route
+Route::get('/debug-db', function () {
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+        $dbName = \Illuminate\Support\Facades\DB::connection()->getDatabaseName();
+        $tableCount = count(\Illuminate\Support\Facades\DB::select('SHOW TABLES'));
+        
+        return "Database Connected successfully to '{$dbName}'. Tables found: {$tableCount}.";
+    } catch (\Exception $e) {
+        return "Database Connection Failed: " . $e->getMessage();
+    }
+});
