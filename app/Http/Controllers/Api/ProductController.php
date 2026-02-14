@@ -20,7 +20,59 @@ class ProductController extends Controller
     /**
      * Display a listing of products
      */
-    public function index(Request $request)
+    // public function index(Request $request)
+    // {
+    //     $query = Product::with(['category', 'brand']);
+
+    //     // Filters
+    //     if ($request->has('category_id')) {
+    //         $query->where('category_id', $request->category_id);
+    //     }
+
+    //     if ($request->has('brand_id')) {
+    //         $query->where('brand_id', $request->brand_id);
+    //     }
+
+    //     if ($request->has('featured')) {
+    //         $query->where('is_featured', true);
+    //     }
+
+    //     if ($request->has('search')) {
+    //         $search = $request->search;
+    //         $query->where(function($q) use ($search) {
+    //             $q->where('name', 'like', "%{$search}%")
+    //               ->orWhere('description', 'like', "%{$search}%")
+    //               ->orWhere('sku', 'like', "%{$search}%");
+    //         });
+    //     }
+
+    //     if ($request->has('status')) {
+    //         $query->where('status', $request->status);
+    //     } else {
+    //         $query->where('status', 'Active');
+    //     }
+
+    //     if ($request->has('visibility')) {
+    //         $query->where('visibility', $request->visibility);
+    //     } else {
+    //         $query->where('visibility', 'Visible');
+    //     }
+
+    //     // Sorting
+    //     $sortBy = $request->get('sort_by', 'created_at');
+    //     $sortOrder = $request->get('sort_order', 'desc');
+    //     $query->orderBy($sortBy, $sortOrder);
+
+    //     // Pagination
+    //     $perPage = $request->get('per_page', 15);
+    //     $products = $query->paginate($perPage);
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'data' => $products
+    //     ]);
+    // }
+     public function index(Request $request)
     {
         $query = Product::with(['category', 'brand']);
 
@@ -39,10 +91,10 @@ class ProductController extends Controller
 
         if ($request->has('search')) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('description', 'like', "%{$search}%")
-                  ->orWhere('sku', 'like', "%{$search}%");
+                    ->orWhere('description', 'like', "%{$search}%")
+                    ->orWhere('sku', 'like', "%{$search}%");
             });
         }
 
@@ -59,17 +111,28 @@ class ProductController extends Controller
         }
 
         // Sorting
-        $sortBy = $request->get('sort_by', 'created_at');
+        $sortBy    = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
         $query->orderBy($sortBy, $sortOrder);
 
-        // Pagination
-        $perPage = $request->get('per_page', 15);
+        // Check if pagination is requested
+        if ($request->has('paginate') && $request->paginate === 'false') {
+            // Return all products without pagination
+            $products = $query->get();
+            return response()->json([
+                'success' => true,
+                'data'    => $products,
+                'total'   => $products->count(),
+            ]);
+        }
+
+        // Default: Return paginated results
+        $perPage  = $request->get('per_page', 15);
         $products = $query->paginate($perPage);
 
         return response()->json([
             'success' => true,
-            'data' => $products
+            'data'    => $products,
         ]);
     }
 
